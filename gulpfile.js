@@ -13,7 +13,7 @@ import babel from 'gulp-babel';
 import sourcemaps from 'gulp-sourcemaps';
 import distConfig from './webpack.config';
 
-const TIMEOUT = 10000;
+const TIMEOUT = 30000;
 const argv = yargs.argv;
 
 function getTestSources() {
