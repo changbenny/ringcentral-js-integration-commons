@@ -96,7 +96,7 @@ export default class RcPhone extends RcModule {
   }
 }
 
-
+if (window) window.RcPhone = RcPhone;
 
 
 
