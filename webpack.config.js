@@ -8,6 +8,8 @@ export default {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'ringcentral-js-integration-commons.js',
+    libraryTarget: "umd",
+    library: 'RcPhone'
   },
   devtool: 'source-map',
   module: {
