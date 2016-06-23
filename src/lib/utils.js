@@ -1,5 +1,3 @@
-
-
 export function extractData(model) {
   if (Array.isArray(model)) {
     return model.map(item => extractData(item));
