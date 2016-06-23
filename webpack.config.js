@@ -9,9 +9,9 @@ export default {
     path: path.resolve(__dirname, 'dist'),
     filename: 'ringcentral-js-integration-commons.js',
     libraryTarget: "umd",
-    library: 'RcPhone'
+    library: 'RcPhone',
   },
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   module: {
     loaders: [
       {
