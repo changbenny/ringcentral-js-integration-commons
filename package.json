@@ -1,5 +1,5 @@
 {
-  "name": "ringcentral-js-unity",
+  "name": "ringcentral-js-integration-commons",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ringcentral/ringcentral-js-unity.git"
+    "url": "git+https://github.com/ringcentral/ringcentral-js-integration-commons.git"
   },
   "author": "RingCentral Integration",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ringcentral/ringcentral-js-unity/issues"
+    "url": "https://github.com/ringcentral/ringcentral-js-integration-commons/issues"
   },
-  "homepage": "https://github.com/ringcentral/ringcentral-js-unity#readme",
+  "homepage": "https://github.com/ringcentral/ringcentral-js-integration-commons#readme",
   "devDependencies": {
     "babel-cli": "^6.6.5",
     "babel-core": "^6.7.4",
