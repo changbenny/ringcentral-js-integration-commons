@@ -30,6 +30,93 @@ async function initPhoneInstance() {
   });
 }
 
+async function record(flag = true) {
+  if (!flag) {
+    await this.currentSession.stopRecord();
+    this.store.dispatch({
+      type: this.actions.callOperation,
+      operation: {
+        type: callActions.stopRecord,
+      },
+    });
+  } else {
+    await this.currentSession.startRecord();
+    this.store.dispatch({
+      type: this.actions.callOperation,
+      operation: {
+        type: callActions.record,
+      },
+    });
+  }
+}
+
+async function mute(flag = true) {
+  if (!flag) {
+    await this.currentSession.unmute();
+    this.store.dispatch({
+      type: this.actions.callOperation,
+      operation: {
+        type: callActions.unmute,
+      },
+    });
+  } else {
+    await this.currentSession.mute();
+    this.store.dispatch({
+      type: this.actions.callOperation,
+      operation: {
+        type: callActions.mute,
+      },
+    });
+  }
+}
+
+async function hold(flag = true) {
+  if (!flag) {
+    await this.currentSession.unhold();
+    this.store.dispatch({
+      type: this.actions.callOperation,
+      operation: {
+        type: callActions.unhold,
+      },
+    });
+  } else {
+    await this.currentSession.hold();
+    this.store.dispatch({
+      type: this.actions.callOperation,
+      operation: {
+        type: callActions.hold,
+      },
+    });
+  }
+}
+
+async function park() {
+  await this.currentSession.park();
+  this.store.dispatch({
+    type: this.actions.callOperation,
+    operation: {
+      type: callActions.park,
+    },
+  });
+}
+
+async function transfer(number) {
+  this.checkSession();
+  await this.currentSession.transfer(number);
+}
+
+async function operations(name, ...args) {
+  const actions = { record, mute, hold, park, transfer };
+  this.checkSession();
+  try {
+    await actions[name].call(this, ...args);
+  } catch (e) {
+    // TODO
+    console.error(e);
+    throw e;
+  }
+}
+
 export default class Webphone extends RcModule {
   constructor(options) {
     super({
@@ -88,7 +175,9 @@ export default class Webphone extends RcModule {
   get reducer() {
     return getReducer({
       status: webphoneStatus.preRegister,
-      operation: null,
+      operation: {
+        status: [],
+      },
     }, this.prefix);
   }
 
@@ -139,26 +228,30 @@ export default class Webphone extends RcModule {
     return await this.currentSession.bye();
   }
 
-  async record(flag = true) {
+  async record(flag) {
+    operations.call(this, 'record', flag);
+  }
+
+  async mute(flag) {
+    operations.call(this, 'mute', flag);
+  }
+
+  async hold(flag) {
+    operations.call(this, 'hold', flag);
+  }
+
+  async park(flag) {
+    operations.call(this, 'park', flag);
+  }
+
+  async transfer(number) {
+    operations.call(this, 'transfer', number);
+  }
+
+  checkSession() {
     if (!this.currentSession) {
       throw Error('No active session');
     }
-    if (!flag) {
-      await this.currentSession.stopRecord();
-      this.store.dispatch({
-        type: this.actions.callOperation,
-        operation: {
-          type: callActions.stopRecord,
-        },
-      });
-    }
-    await this.currentSession.startRecord();
-    this.store.dispatch({
-      type: this.actions.callOperation,
-      operation: {
-        type: callActions.record,
-      },
-    });
   }
 
   /**

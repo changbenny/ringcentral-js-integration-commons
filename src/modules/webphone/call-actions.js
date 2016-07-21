@@ -4,4 +4,11 @@ export default new ActionMap([
   'flip',
   'record',
   'stopRecord',
+  'hold',
+  'unhold',
+  'mute',
+  'unmute',
+  'park',
+  'transfer',
+  'forward',
 ]);
