@@ -32,6 +32,7 @@ export default function getReducer(initialState, prefix) {
       case actions.callConnect:
         return Object.assign({}, state, {
           status: webphoneStatus.callConnected,
+          info: action.payload,
         });
       case actions.callEnd:
         return Object.assign({}, state, {
