@@ -260,8 +260,10 @@ export default class Webphone extends RcModule {
   listenSessionEvents() {
     console.log('accepted event');
     this.currentSession.on('accepted', (data) => {
+      console.log(data);
       this.store.dispatch({
         type: this.actions.callConnect,
+        payload: data,
       });
     });
     this.currentSession.on('rejected', (response, cause) => {
