@@ -178,6 +178,9 @@ export default class Webphone extends RcModule {
       operation: {
         status: [],
       },
+      toNumber: '',
+      fromNumber: '',
+      callLineInfo: null,
     }, this.prefix);
   }
 
