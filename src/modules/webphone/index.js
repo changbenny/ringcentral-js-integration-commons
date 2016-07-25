@@ -190,7 +190,7 @@ export default class Webphone extends RcModule {
    * @param {string} [fromNumber]
    * @return {Session}
    */
-  async call({ toNumber, fromNumber }) {
+  async call({ toNumber, fromNumber, media }) {
     this.store.dispatch({
       type: this.actions.call,
       payload: {
@@ -198,7 +198,11 @@ export default class Webphone extends RcModule {
         fromNumber,
       },
     });
-    this.currentSession = this[symbols.phoneInstance].userAgent.invite(toNumber);
+    this.currentSession = this[symbols.phoneInstance].userAgent.invite(toNumber, {
+      media: {
+        render: media,
+      },
+    });
     this.listenSessionEvents();
     try {
       await this.currentSession;
