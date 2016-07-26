@@ -11,4 +11,6 @@ export default new ActionMap([
   'callEnd',
   'callError',
   'callOperation',
+  // no active session
+  'sessionError',
 ]);

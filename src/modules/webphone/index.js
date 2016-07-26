@@ -247,17 +247,12 @@ export default class Webphone extends RcModule {
    * @return {Promise}
    */
   async accept(media) {
-    if (!this.currentSession) {
-      throw Error('No active session');
-    }
-    console.log('accept');
+    this.checkSession();
     return await this.currentSession.accept(media);
   }
 
   async bye() {
-    if (!this.currentSession) {
-      throw Error('No active session');
-    }
+    this.checkSession();
     return await this.currentSession.bye();
   }
 
@@ -287,6 +282,10 @@ export default class Webphone extends RcModule {
 
   checkSession() {
     if (!this.currentSession) {
+      this.store.dispatch({
+        // TODO
+        type: this.actions.sessionError,
+      });
       throw Error('No active session');
     }
   }

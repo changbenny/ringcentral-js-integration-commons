@@ -12,6 +12,7 @@ const initialState = {
   // sip info return from sip server
   callLineInfo: null,
   operation: callReducer(),
+  error: null,
 };
 
 export default function getReducer(prefix) {
@@ -55,9 +56,7 @@ export default function getReducer(prefix) {
       case actions.callEnd:
         return Object.assign({}, state, {
           status: webphoneStatus.registerSuccessed,
-          operation: {
-            status: [],
-          },
+          operation: callReducer(),
         });
       case actions.callError:
         return Object.assign({}, state, {
@@ -67,6 +66,10 @@ export default function getReducer(prefix) {
       case actions.callOperation:
         return Object.assign({}, state, {
           operation: callReducer(state.operation, action.operation),
+        });
+      case actions.sessionError:
+        return Object.assign({}, state, {
+          error: action.error,
         });
 
       default:
