@@ -4,7 +4,18 @@ import webphoneStatus from '../../enums/webphone-status';
 
 import callReducer from './call-reducer';
 
-export default function getReducer(initialState, prefix) {
+const initialState = {
+  status: webphoneStatus.preRegister,
+  // assign from UI
+  toNumber: '',
+  fromNumber: '',
+  // sip info return from sip server
+  callLineInfo: null,
+  operation: callReducer(),
+  error: null,
+};
+
+export default function getReducer(prefix) {
   const actions = prefixActions(webphoneActions, prefix);
 
   return (state, action) => {
@@ -20,6 +31,11 @@ export default function getReducer(initialState, prefix) {
         return Object.assign({}, state, {
           status: webphoneStatus.registerFailed,
           error: action.error,
+        });
+      case actions.unregister:
+        return Object.assign({}, state, {
+          status: webphoneStatus.preRegister,
+          operation: callReducer(state.operation, action.operation),
         });
       case actions.call:
         return Object.assign({}, state, {
@@ -40,9 +56,7 @@ export default function getReducer(initialState, prefix) {
       case actions.callEnd:
         return Object.assign({}, state, {
           status: webphoneStatus.registerSuccessed,
-          operation: {
-            status: [],
-          },
+          operation: callReducer(),
         });
       case actions.callError:
         return Object.assign({}, state, {
@@ -52,6 +66,10 @@ export default function getReducer(initialState, prefix) {
       case actions.callOperation:
         return Object.assign({}, state, {
           operation: callReducer(state.operation, action.operation),
+        });
+      case actions.sessionError:
+        return Object.assign({}, state, {
+          error: action.error,
         });
 
       default:

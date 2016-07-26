@@ -3,7 +3,7 @@ import SymbolMap from '../../lib/symbol-map';
 import webphoneActions from './webphone-actions';
 import callActions from './call-actions';
 import getReducer from './webphone-reducer';
-import Emitter from 'component-emitter';
+import Emitter from 'event-emitter';
 import RingCentralWebphone from 'ringcentral-web-phone';
 import webphoneStatus from '../../enums/webphone-status';
 import callStatus from '../../enums/call-status';
@@ -103,17 +103,46 @@ async function park() {
 async function transfer(number) {
   this.checkSession();
   await this.currentSession.transfer(number);
+  this.store.dispatch({
+    type: this.actions.callOperation,
+    operation: {
+      type: callActions.transfer,
+      payload: {
+        number,
+      },
+    },
+  });
+}
+
+async function dtmf(number) {
+  this.checkSession();
+  await this.currentSession.dtmf(number);
+  this.store.dispatch({
+    type: this.actions.callOperation,
+    operation: {
+      type: callActions.dtmf,
+      payload: {
+        number,
+      },
+    },
+  });
 }
 
 async function operations(name, ...args) {
-  const actions = { record, mute, hold, park, transfer };
+  const actions = { record, mute, hold, park, transfer, dtmf };
   this.checkSession();
   try {
     await actions[name].call(this, ...args);
-  } catch (e) {
-    // TODO
-    console.error(e);
-    throw e;
+  } catch (error) {
+    this.store.dispatch({
+      type: this.actions.callOperation,
+      operation: {
+        type: callActions.error,
+        error,
+      },
+    });
+    // TODO: needed?
+    throw error;
   }
 }
 
@@ -153,8 +182,13 @@ export default class Webphone extends RcModule {
         this.isRegistered = this[symbols.phoneInstance].userAgent.isRegistered();
       });
       this[symbols.phoneInstance].userAgent.on('unregistered', () => {
-        // TODO: we are not changing store state after unregister for now.
         this.isRegistered = this[symbols.phoneInstance].userAgent.isRegistered();
+        this.store.dispatch({
+          type: this.actions.unregister,
+          operation: {
+            type: callActions.clear,
+          },
+        });
       });
       this[symbols.phoneInstance].userAgent.on('registrationFailed', (error) => {
         this.store.dispatch({
@@ -173,15 +207,7 @@ export default class Webphone extends RcModule {
   }
 
   get reducer() {
-    return getReducer({
-      status: webphoneStatus.preRegister,
-      operation: {
-        status: [],
-      },
-      toNumber: '',
-      fromNumber: '',
-      callLineInfo: null,
-    }, this.prefix);
+    return getReducer(this.prefix);
   }
 
   /**
@@ -190,7 +216,7 @@ export default class Webphone extends RcModule {
    * @param {string} [fromNumber]
    * @return {Session}
    */
-  async call({ toNumber, fromNumber }) {
+  async call({ toNumber, fromNumber, media }) {
     this.store.dispatch({
       type: this.actions.call,
       payload: {
@@ -198,7 +224,11 @@ export default class Webphone extends RcModule {
         fromNumber,
       },
     });
-    this.currentSession = this[symbols.phoneInstance].userAgent.invite(toNumber);
+    this.currentSession = this[symbols.phoneInstance].userAgent.invite(toNumber, {
+      media: {
+        render: media,
+      },
+    });
     this.listenSessionEvents();
     try {
       await this.currentSession;
@@ -217,17 +247,12 @@ export default class Webphone extends RcModule {
    * @return {Promise}
    */
   async accept(media) {
-    if (!this.currentSession) {
-      throw Error('No active session');
-    }
-    console.log('accept');
+    this.checkSession();
     return await this.currentSession.accept(media);
   }
 
   async bye() {
-    if (!this.currentSession) {
-      throw Error('No active session');
-    }
+    this.checkSession();
     return await this.currentSession.bye();
   }
 
@@ -251,8 +276,16 @@ export default class Webphone extends RcModule {
     operations.call(this, 'transfer', number);
   }
 
+  async dtmf(number) {
+    operations.call(this, 'dtmf', number);
+  }
+
   checkSession() {
     if (!this.currentSession) {
+      this.store.dispatch({
+        // TODO
+        type: this.actions.sessionError,
+      });
       throw Error('No active session');
     }
   }
