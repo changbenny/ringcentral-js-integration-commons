@@ -114,6 +114,20 @@ async function transfer(number) {
   });
 }
 
+async function flip(number) {
+  this.checkSession();
+  await this.currentSession.flip(number);
+  this.store.dispatch({
+    type: this.actions.callOperation,
+    operation: {
+      type: callActions.flip,
+      payload: {
+        number,
+      },
+    },
+  });
+}
+
 async function dtmf(number) {
   this.checkSession();
   await this.currentSession.dtmf(number);
@@ -129,7 +143,7 @@ async function dtmf(number) {
 }
 
 async function operations(name, ...args) {
-  const actions = { record, mute, hold, park, transfer, dtmf };
+  const actions = { record, mute, hold, park, transfer, flip, dtmf };
   this.checkSession();
   try {
     await actions[name].call(this, ...args);
@@ -274,6 +288,10 @@ export default class Webphone extends RcModule {
 
   async transfer(number) {
     operations.call(this, 'transfer', number);
+  }
+
+  async flip(number) {
+    operations.call(this, 'flip', number);
   }
 
   async dtmf(number) {
