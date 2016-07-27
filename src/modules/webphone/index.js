@@ -267,7 +267,7 @@ export default class Webphone extends RcModule {
 
   async bye() {
     this.checkSession();
-    return await this.currentSession.bye();
+    return await this.currentSession.terminate();
   }
 
   async record(flag) {
