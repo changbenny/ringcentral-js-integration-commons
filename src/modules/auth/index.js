@@ -186,7 +186,7 @@ export default class Auth extends RcModule {
   }
 
   get enums() {
-    return this[ENUMS];
+    return ENUMS;
   }
 
   async isLoggedIn() {

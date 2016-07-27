@@ -10,7 +10,8 @@ const initialState = {
   toNumber: '',
   fromNumber: '',
   // sip info return from sip server
-  callLineInfo: null,
+  remoteIdentity: null,
+  localIdentity: null,
   operation: callReducer(),
   error: null,
 };
@@ -33,10 +34,7 @@ export default function getReducer(prefix) {
           error: action.error,
         });
       case actions.unregister:
-        return Object.assign({}, state, {
-          status: webphoneStatus.preRegister,
-          operation: callReducer(state.operation, action.operation),
-        });
+        return initialState;
       case actions.call:
         return Object.assign({}, state, {
           status: webphoneStatus.callConnecting,
@@ -46,15 +44,22 @@ export default function getReducer(prefix) {
       case actions.callIncoming:
         return Object.assign({}, state, {
           status: webphoneStatus.callIncoming,
+          remoteIdentity: action.payload.remoteIdentity,
+          localIdentity: action.payload.localIdentity,
         });
       // TODO: update fromNumber, toNumber
       case actions.callConnect:
         return Object.assign({}, state, {
           status: webphoneStatus.callConnected,
-          callLineInfo: action.payload,
+          remoteIdentity: action.payload.remoteIdentity,
+          localIdentity: action.payload.localIdentity,
+        });
+      case actions.callAccept:
+        return Object.assign({}, state, {
+          status: webphoneStatus.callConnected,
         });
       case actions.callEnd:
-        return Object.assign({}, state, {
+        return Object.assign({}, initialState, {
           status: webphoneStatus.registerSuccessed,
           operation: callReducer(),
         });

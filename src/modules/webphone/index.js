@@ -1,5 +1,6 @@
 import RcModule from '../../lib/rc-module';
 import SymbolMap from '../../lib/symbol-map';
+import Enum from '../../lib/enum';
 import webphoneActions from './webphone-actions';
 import callActions from './call-actions';
 import getReducer from './webphone-reducer';
@@ -15,6 +16,11 @@ const symbols = new SymbolMap([
   'settings',
   'phoneInstance',
 ]);
+
+const ENUMS = new Enum({
+  webphoneStatus,
+  callStatus,
+});
 
 async function initPhoneInstance() {
   const info = await this[symbols.platform]
@@ -213,8 +219,13 @@ export default class Webphone extends RcModule {
       this[symbols.phoneInstance].userAgent.on('invite', (session) => {
         this.currentSession = session;
         this.listenSessionEvents();
+        console.log(session);
         this.store.dispatch({
           type: this.actions.callIncoming,
+          payload: {
+            remoteIdentity: session.remoteIdentity,
+            localIdentity: session.localIdentity,
+          },
         });
       });
     });
@@ -222,6 +233,10 @@ export default class Webphone extends RcModule {
 
   get reducer() {
     return getReducer(this.prefix);
+  }
+
+  get enums() {
+    return ENUMS;
   }
 
   /**
@@ -267,7 +282,7 @@ export default class Webphone extends RcModule {
 
   async bye() {
     this.checkSession();
-    return await this.currentSession.bye();
+    return await this.currentSession.terminate();
   }
 
   async record(flag) {
@@ -312,13 +327,23 @@ export default class Webphone extends RcModule {
    * Internal method for listen session events
    */
   listenSessionEvents() {
-    console.log('accepted event');
-    this.currentSession.on('accepted', (data) => {
-      console.log(data);
-      this.store.dispatch({
-        type: this.actions.callConnect,
-        payload: data,
-      });
+    this.currentSession.on('accepted', (response, cause) => {
+      console.log(response);
+      // accepted event for outbound call will returne a incomingResponse
+      if (response.data) {
+        this.store.dispatch({
+          type: this.actions.callConnect,
+          payload: {
+            remoteIdentity: response.to,
+            localIdentity: response.from,
+          },
+        });
+      // accepted event for inbound call will only contain a row sip data
+      } else {
+        this.store.dispatch({
+          type: this.actions.callAccept,
+        });
+      }
     });
     this.currentSession.on('rejected', (response, cause) => {
       this.store.dispatch({
@@ -326,7 +351,7 @@ export default class Webphone extends RcModule {
       });
       this.currentSession = null;
     });
-    this.currentSession.on('terminated', (message, cause) => {
+    this.currentSession.on('terminated', (response, cause) => {
       this.store.dispatch({
         type: this.actions.callEnd,
         error: cause,
