@@ -5,9 +5,14 @@ export default new ActionMap([
   'registerSuccess',
   'registerError',
   'unregister',
+
+  // outbound call
   'call',
-  'callIncoming',
   'callConnect',
+  // inbound call
+  'callAccept',
+  'callIncoming',
+
   'callEnd',
   'callError',
   'callOperation',
