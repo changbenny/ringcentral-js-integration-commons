@@ -25,6 +25,7 @@ function getStoreRegisterAndResolver() {
 export default class RcPhone extends RcModule {
   constructor({
     registerStoreHandler,
+    getStore,
     stateMapper,
     prefix = 'rc',
     sdkSettings,
@@ -53,26 +54,26 @@ export default class RcPhone extends RcModule {
 
     this::addModule('auth', new Auth({
       registerStoreHandler: register,
-      stateMapper: state => state.auth,
+      stateMapper: state => stateMapper(state).auth,
       prefix,
       platform: this.platform,
     }));
 
     this::addModule('settings', new Settings({
       registerStoreHandler: register,
-      stateMapper: state => state.settings,
+      stateMapper: state => stateMapper(state).settings,
     }));
 
     this::addModule('defaultBrand', new Brand({
       registerStoreHandler: register,
       prefix: `${prefix}-default`,
-      stateMapper: state => state.defaultBrand,
+      stateMapper: state => stateMapper(state).defaultBrand,
       ...defaultBrand,
     }));
 
     this::addModule('subscription', new Subscription({
       registerStoreHandler: register,
-      stateMapper: state => state.subscription,
+      stateMapper: state => stateMapper(state).subscription,
       prefix,
       api: this.api,
       platform: this.platform,
@@ -82,7 +83,7 @@ export default class RcPhone extends RcModule {
 
     this::addModule('user', new User({
       registerStoreHandler: register,
-      stateMapper: state => state.user,
+      stateMapper: state => stateMapper(state).user,
       prefix,
       api: this.api,
       platform: this.platform,
@@ -91,7 +92,7 @@ export default class RcPhone extends RcModule {
 
     this::addModule('webphone', new Webphone({
       registerStoreHandler: register,
-      stateMapper: (state) => state.webphone,
+      stateMapper: (state) => stateMapper(state).webphone,
       prefix,
       api: this.api,
       platform: this.platform,
@@ -109,7 +110,8 @@ export default class RcPhone extends RcModule {
     });
 
     if (resolve) {
-      resolve(createStore(this.reducer));
+      resolve(getStore(this.reducer));
+      // resolve(createStore(this.reducer));
     }
   }
   get reducer() {
