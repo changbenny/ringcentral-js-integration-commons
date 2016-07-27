@@ -1,5 +1,6 @@
 import RcModule from '../../lib/rc-module';
 import SymbolMap from '../../lib/symbol-map';
+import Enum from '../../lib/enum';
 import webphoneActions from './webphone-actions';
 import callActions from './call-actions';
 import getReducer from './webphone-reducer';
@@ -15,6 +16,11 @@ const symbols = new SymbolMap([
   'settings',
   'phoneInstance',
 ]);
+
+const ENUMS = new Enum({
+  webphoneStatus,
+  callStatus,
+});
 
 async function initPhoneInstance() {
   const info = await this[symbols.platform]
@@ -227,6 +233,10 @@ export default class Webphone extends RcModule {
 
   get reducer() {
     return getReducer(this.prefix);
+  }
+
+  get enums() {
+    return ENUMS;
   }
 
   /**

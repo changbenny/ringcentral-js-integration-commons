@@ -34,10 +34,7 @@ export default function getReducer(prefix) {
           error: action.error,
         });
       case actions.unregister:
-        return Object.assign({}, state, {
-          status: webphoneStatus.preRegister,
-          operation: callReducer(state.operation, action.operation),
-        });
+        return initialState;
       case actions.call:
         return Object.assign({}, state, {
           status: webphoneStatus.callConnecting,
@@ -62,7 +59,7 @@ export default function getReducer(prefix) {
           status: webphoneStatus.callConnected,
         });
       case actions.callEnd:
-        return Object.assign({}, state, {
+        return Object.assign({}, initialState, {
           status: webphoneStatus.registerSuccessed,
           operation: callReducer(),
         });
