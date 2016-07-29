@@ -359,6 +359,7 @@ export default class Webphone extends RcModule {
         });
       }
     });
+    // all situation about call terminated except 'call cancel'
     this.currentSession.on('terminated', (response, cause) => {
       console.log(response);
       this.store.dispatch({
@@ -367,6 +368,7 @@ export default class Webphone extends RcModule {
       });
       this.currentSession = null;
     });
+    // when we call out and cancel the phone call
     this.currentSession.on('cancel', (response, cause) => {
       this.store.dispatch({
         type: this.actions.callEnd,
@@ -374,6 +376,7 @@ export default class Webphone extends RcModule {
       });
       this.currentSession = null;
     });
+    // should not need
     this.currentSession.on('bye', (response) => {
       console.log(response);
       this.store.dispatch({
