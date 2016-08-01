@@ -61,7 +61,7 @@ export default function getReducer(prefix) {
       case actions.callEnd:
         return Object.assign({}, initialState, {
           status: webphoneStatus.registerSuccessed,
-          operation: callReducer(),
+          error: action.error,
         });
       case actions.callError:
         return Object.assign({}, state, {
@@ -73,7 +73,7 @@ export default function getReducer(prefix) {
           operation: callReducer(state.operation, action.operation),
         });
       case actions.sessionError:
-        return Object.assign({}, state, {
+        return Object.assign({}, initialState, {
           error: action.error,
         });
 

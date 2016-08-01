@@ -246,6 +246,10 @@ export default class Webphone extends RcModule {
    * @return {Session}
    */
   async call({ toNumber, fromNumber, media }) {
+    // Check status
+    if (!this[symbols.phoneInstance]) {
+      throw Error('not registered');
+    }
     this.store.dispatch({
       type: this.actions.call,
       payload: {
@@ -262,6 +266,7 @@ export default class Webphone extends RcModule {
     try {
       await this.currentSession;
     } catch (error) {
+      console.error(error);
       this.store.dispatch({
         type: this.actions.callError,
         error,
@@ -277,12 +282,22 @@ export default class Webphone extends RcModule {
    */
   async accept(media) {
     this.checkSession();
-    return await this.currentSession.accept(media);
+    try {
+      await this.currentSession.accept(media);
+    } catch (error) {
+      // TODO
+      console.error(error);
+    }
   }
 
   async bye() {
     this.checkSession();
-    return await this.currentSession.terminate();
+    try {
+      await this.currentSession.terminate();
+    } catch (error) {
+      // TODO
+      console.error(error);
+    }
   }
 
   async record(flag) {
@@ -316,7 +331,6 @@ export default class Webphone extends RcModule {
   checkSession() {
     if (!this.currentSession) {
       this.store.dispatch({
-        // TODO
         type: this.actions.sessionError,
       });
       throw Error('No active session');
@@ -327,7 +341,7 @@ export default class Webphone extends RcModule {
    * Internal method for listen session events
    */
   listenSessionEvents() {
-    this.currentSession.on('accepted', (response, cause) => {
+    this.currentSession.on('accepted', (response) => {
       console.log(response);
       // accepted event for outbound call will returne a incomingResponse
       if (response.data) {
@@ -345,20 +359,26 @@ export default class Webphone extends RcModule {
         });
       }
     });
-    this.currentSession.on('rejected', (response, cause) => {
-      this.store.dispatch({
-        type: this.actions.callEnd,
-      });
-      this.currentSession = null;
-    });
+    // all situation about call terminated except 'call cancel'
     this.currentSession.on('terminated', (response, cause) => {
+      console.log(response);
       this.store.dispatch({
         type: this.actions.callEnd,
         error: cause,
       });
       this.currentSession = null;
     });
-    this.currentSession.on('bye', (request) => {
+    // when we call out and cancel the phone call
+    this.currentSession.on('cancel', (response, cause) => {
+      this.store.dispatch({
+        type: this.actions.callEnd,
+        error: cause,
+      });
+      this.currentSession = null;
+    });
+    // should not need
+    this.currentSession.on('bye', (response) => {
+      console.log(response);
       this.store.dispatch({
         type: this.actions.callEnd,
       });
