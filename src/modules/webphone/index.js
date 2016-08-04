@@ -31,7 +31,7 @@ async function initPhoneInstance() {
   return new RingCentralWebphone(info, {
     logLevel: 0,
     audioHelper: {
-      enabled: false,
+      enabled: true,
     },
   });
 }
@@ -326,6 +326,13 @@ export default class Webphone extends RcModule {
 
   async dtmf(number) {
     operations.call(this, 'dtmf', number);
+  }
+
+  loadRingAudio({ incoming, outgoing }) {
+    this[symbols.phoneInstance].userAgent.audioHelper.loadAudio({
+      incoming,
+      outgoing,
+    })
   }
 
   checkSession() {
