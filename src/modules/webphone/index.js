@@ -9,8 +9,11 @@ import RingCentralWebphone from 'ringcentral-web-phone';
 import webphoneStatus from '../../enums/webphone-status';
 import callStatus from '../../enums/call-status';
 
+import { authEvents, authEventTypes } from '../auth/auth-events';
+
 const symbols = new SymbolMap([
   'api',
+  'auth',
   'platform',
   'emitter',
   'settings',
@@ -176,19 +179,20 @@ export default class Webphone extends RcModule {
       api,
       platform,
       settings,
+      auth,
     } = options;
     this[symbols.api] = api;
     this[symbols.platform] = platform;
     this[symbols.emitter] = new Emitter();
     this[symbols.settings] = settings;
+    this[symbols.auth] = auth;
 
     this.currentSession = null;
     this.isRegistered = false;
 
     // TODO: commented out until setting module completed
     // settings.registerReducer('webphone', getWebphoneReducer())
-
-    platform.on(platform.events.loginSuccess, async () => {
+    this[symbols.auth].on(authEventTypes.loginStatusChanged, async () => {
       this[symbols.phoneInstance] = await this::initPhoneInstance();
       this[symbols.phoneInstance].userAgent.on('registered', () => {
         // sip will fire multiple registered events, only dispatch one register action to state.
@@ -332,7 +336,7 @@ export default class Webphone extends RcModule {
     this[symbols.phoneInstance].userAgent.audioHelper.loadAudio({
       incoming,
       outgoing,
-    })
+    });
   }
 
   checkSession() {
@@ -349,7 +353,6 @@ export default class Webphone extends RcModule {
    */
   listenSessionEvents() {
     this.currentSession.on('accepted', (response) => {
-      console.log(response);
       // accepted event for outbound call will returne a incomingResponse
       if (response.data) {
         this.store.dispatch({
@@ -368,7 +371,6 @@ export default class Webphone extends RcModule {
     });
     // all situation about call terminated except 'call cancel'
     this.currentSession.on('terminated', (response, cause) => {
-      console.log(response);
       this.store.dispatch({
         type: this.actions.callEnd,
         error: cause,
@@ -385,7 +387,6 @@ export default class Webphone extends RcModule {
     });
     // should not need
     this.currentSession.on('bye', (response) => {
-      console.log(response);
       this.store.dispatch({
         type: this.actions.callEnd,
       });
