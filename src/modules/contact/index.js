@@ -1,0 +1,55 @@
+import RcModule from '../../lib/rc-module';
+import SymbolMap from '../../lib/symbol-map';
+import Enum from '../../lib/enum';
+import getReducer from './contact-reducer';
+import actions from './contact-actions';
+
+import { fetchList } from '../../lib/utils';
+
+const symbols = new SymbolMap([
+  'api',
+  'platform',
+  'settings',
+]);
+
+/**
+ * @class
+ * @description Contact module
+ */
+export default class Auth extends RcModule {
+  /**
+   * @function
+   */
+  constructor(options) {
+    super({
+      ...options,
+      actions,
+    });
+    const {
+      api,
+      platform,
+      settings,
+    } = options;
+    this[symbols.api] = api;
+    this[symbols.platform] = platform;
+    this[symbols.settings] = settings;
+
+    platform.on(platform.events.loginSuccess, () => {
+      this.loadCompanyContact();
+    });
+
+    (async () => {
+      if (await platform.loggedIn()) {
+        await this.loadCompanyContact();
+      }
+    })();
+  }
+
+  async loadCompanyContact() {
+    const info = await this[symbols.api].extension().listExtensions();
+  }
+
+  get reducer() {
+    return getReducer(this.prefix);
+  }
+}

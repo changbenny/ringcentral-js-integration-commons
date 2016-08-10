@@ -49,7 +49,7 @@ export default class RcPhone extends RcModule {
 
     this::addModule('platform', this.sdk.platform());
 
-    this::addModule('api', new RingCentralClient(this.sdk));
+    this::addModule('api', new RingCentralClient(this.sdk.platform()));
 
     this::addModule('auth', new Auth({
       registerStoreHandler: register,
