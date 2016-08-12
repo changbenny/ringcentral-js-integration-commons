@@ -1,0 +1,1 @@
+{"version":3,"sources":["modules/user/user-actions.js"],"names":[],"mappings":";;;;;;AAAA;;kBAEe,2BAAc,CAC3B,cAD2B,EAE3B,eAF2B,CAAd,C","file":"user-actions.js","sourcesContent":["import { ActionMap } from '../../lib/redux-helper';\n\nexport default new ActionMap([\n  'loadUserInfo',\n  'clearUserInfo',\n]);\n"]}
