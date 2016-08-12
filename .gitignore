@@ -40,3 +40,4 @@ test-server/auto-loader.js
 demo-server/build
 
 dist
+index.html
