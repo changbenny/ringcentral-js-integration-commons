@@ -46,11 +46,12 @@ var ActionMap = exports.ActionMap = function (_Enum) {
 
   function ActionMap() {
     var actions = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+    var prefix = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
     (0, _classCallCheck3.default)(this, ActionMap);
 
     var definition = {};
     actions.forEach(function (action) {
-      definition[action] = action;
+      definition[action] = prefix !== '' ? prefix + '-' + action : action;
     });
     return (0, _possibleConstructorReturn3.default)(this, (0, _getPrototypeOf2.default)(ActionMap).call(this, definition));
   }

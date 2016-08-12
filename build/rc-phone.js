@@ -12,9 +12,9 @@ var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
+var _promise = require('babel-runtime/core-js/promise');
 
-var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+var _promise2 = _interopRequireDefault(_promise);
 
 var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
@@ -31,10 +31,6 @@ var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorRet
 var _inherits2 = require('babel-runtime/helpers/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
-
-var _set = require('babel-runtime/core-js/set');
-
-var _set2 = _interopRequireDefault(_set);
 
 var _symbol = require('babel-runtime/core-js/symbol');
 
@@ -68,9 +64,17 @@ var _auth = require('./modules/auth');
 
 var _auth2 = _interopRequireDefault(_auth);
 
+var _subscription = require('./modules/subscription');
+
+var _subscription2 = _interopRequireDefault(_subscription);
+
 var _user = require('./modules/user');
 
 var _user2 = _interopRequireDefault(_user);
+
+var _webphone = require('./modules/webphone');
+
+var _webphone2 = _interopRequireDefault(_webphone);
 
 var _redux = require('redux');
 
@@ -78,43 +82,28 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var REDUCER = (0, _symbol2.default)();
 
-function getStoreRegisterAndResolver() {
-  var handlers = new _set2.default();
-  return [function (fn) {
-    return handlers.add(fn);
-  }, function (store) {
-    return handlers.forEach(function (fn) {
-      return fn(store);
-    });
-  }];
-}
-
 var RcPhone = function (_RcModule) {
   (0, _inherits3.default)(RcPhone, _RcModule);
 
-  function RcPhone(_ref) {
-    var registerStoreHandler = _ref.registerStoreHandler;
-    var stateMapper = _ref.stateMapper;
-    var _ref$prefix = _ref.prefix;
-    var prefix = _ref$prefix === undefined ? 'rc' : _ref$prefix;
-    var sdkSettings = _ref.sdkSettings;
-    var defaultBrand = _ref.defaultBrand;
+  function RcPhone(options) {
     (0, _classCallCheck3.default)(this, RcPhone);
+    var getState = options.getState;
+    var _options$prefix = options.prefix;
+    var prefix = _options$prefix === undefined ? 'rc' : _options$prefix;
+    var sdkSettings = options.sdkSettings;
+    var defaultBrand = options.defaultBrand;
+    var promiseForStore = options.promiseForStore;
 
-    var register = registerStoreHandler;
-    var resolve = void 0;
-    if (!register) {
-      var _getStoreRegisterAndR = getStoreRegisterAndResolver();
-
-      var _getStoreRegisterAndR2 = (0, _slicedToArray3.default)(_getStoreRegisterAndR, 2);
-
-      register = _getStoreRegisterAndR2[0];
-      resolve = _getStoreRegisterAndR2[1];
+    var resolver = void 0;
+    if (!promiseForStore) {
+      promiseForStore = new _promise2.default(function (resolve) {
+        resolver = resolve;
+      });
     }
 
     var _this = (0, _possibleConstructorReturn3.default)(this, (0, _getPrototypeOf2.default)(RcPhone).call(this, {
-      registerStoreHandler: register,
-      stateMapper: stateMapper
+      promiseForStore: promiseForStore,
+      getState: getState
     }));
 
     _addModule2.default.call(_this, 'sdk', new _ringcentral2.default((0, _extends3.default)({
@@ -126,52 +115,76 @@ var RcPhone = function (_RcModule) {
 
     _addModule2.default.call(_this, 'api', new _ringcentralClient2.default(_this.sdk));
 
+    _addModule2.default.call(_this, 'auth', new _auth2.default({
+      promiseForStore: promiseForStore,
+      getState: function getState() {
+        return _this.state.auth;
+      },
+      prefix: prefix,
+      platform: _this.platform
+    }));
+
     _addModule2.default.call(_this, 'settings', new _settings2.default({
-      registerStoreHandler: register,
-      stateMapper: function stateMapper(state) {
-        return state.settings;
+      promiseForStore: promiseForStore,
+      getState: function getState() {
+        return _this.state.settings;
       }
     }));
 
     _addModule2.default.call(_this, 'defaultBrand', new _brand2.default((0, _extends3.default)({
-      registerStoreHandler: register,
+      promiseForStore: promiseForStore,
       prefix: prefix + '-default',
-      stateMapper: function stateMapper(state) {
-        return state.defaultBrand;
+      getState: function getState() {
+        return _this.state.defaultBrand;
       }
     }, defaultBrand)));
-    _addModule2.default.call(_this, 'auth', new _auth2.default({
-      registerStoreHandler: register,
-      stateMapper: function stateMapper(state) {
-        return state.auth;
-      },
-      prefix: prefix,
-      defaultBrand: _this.defaultBrand,
-      platform: _this.platform
-    }));
 
-    _addModule2.default.call(_this, 'user', new _user2.default({
-      registerStoreHandler: register,
-      stateMapper: function stateMapper(state) {
-        return state.user;
+    _addModule2.default.call(_this, 'subscription', new _subscription2.default({
+      promiseForStore: promiseForStore,
+      getState: function getState() {
+        return _this.state.subscription;
       },
       prefix: prefix,
       api: _this.api,
-      auth: _this.auth,
+      platform: _this.platform,
+      sdk: _this.sdk,
+      auth: _this.auth
+    }));
+
+    _addModule2.default.call(_this, 'user', new _user2.default({
+      promiseForStore: promiseForStore,
+      getState: function getState() {
+        return _this.state.user;
+      },
+      prefix: prefix,
+      api: _this.api,
       platform: _this.platform,
       settings: _this.settings
     }));
 
+    _addModule2.default.call(_this, 'webphone', new _webphone2.default({
+      promiseForStore: promiseForStore,
+      getState: function getState() {
+        return _this.state.webphone;
+      },
+      prefix: prefix,
+      api: _this.api,
+      platform: _this.platform,
+      settings: _this.settings,
+      auth: _this.auth
+    }));
+
     // combine reducers
     _this[REDUCER] = (0, _redux.combineReducers)({
-      defaultBrand: _this.defaultBrand.reducer,
       auth: _this.auth.reducer,
+      defaultBrand: _this.defaultBrand.reducer,
+      subscription: _this.subscription.reducer,
       user: _this.user.reducer,
+      webphone: _this.webphone.reducer,
       settings: _this.settings.reducer
     });
-
-    if (resolve) {
-      resolve((0, _redux.createStore)(_this.reducer));
+    if (resolver) {
+      resolver((0, _redux.createStore)(_this.reducer));
     }
     return _this;
   }
@@ -184,43 +197,6 @@ var RcPhone = function (_RcModule) {
   }]);
   return RcPhone;
 }(_rcModule2.default);
-
-/**
- * @class RcPhone
- * Default RingCentral phone class, provide feature complete ringcentral phone without UI.
- * Application builders can directly use RcBase and build their own phone class if they need
- * different sets of modules.
- */
-// export default class RcPhone extends RcBase {
-//   constructor({
-//     sdkSettings: {
-//       appKey,
-//       appSecret,
-//       cachePrefix = 'rc',
-//       server,
-//     },
-//     brandSettings, // TODO: should we default to rcus?
-//   }) {
-//     super();
-
-//     this.addModule('sdk', new RingCentral({
-//       appKey,
-//       appSecret,
-//       cachePrefix: `${cachePrefix}`,
-//       server,
-//     }));
-
-//     const client = new RingCentralClient(this.sdk);
-//     this.addModule('client', client);
-
-//     this.addModule('brand', new Brand(brandSettings));
-//     this.addModule('auth', new Auth({
-//       ...this,
-//       platform: this.sdk.platform(),
-//     }));
-//   }
-// }
-
 
 exports.default = RcPhone;
 //# sourceMappingURL=rc-phone.js.map

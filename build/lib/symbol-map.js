@@ -30,8 +30,18 @@ var _enum2 = _interopRequireDefault(_enum);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ * @class
+ * @description Helper class for creating a symbol mapping
+ */
+
 var SymbolMap = function (_Enum) {
   (0, _inherits3.default)(SymbolMap, _Enum);
+
+  /**
+   * @constructor
+   * @param {String[]} keys
+   */
 
   function SymbolMap(keys) {
     (0, _classCallCheck3.default)(this, SymbolMap);

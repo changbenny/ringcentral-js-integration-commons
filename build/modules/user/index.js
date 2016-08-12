@@ -28,97 +28,452 @@ var _inherits2 = require('babel-runtime/helpers/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _regenerator = require('babel-runtime/regenerator');
-
-var _regenerator2 = _interopRequireDefault(_regenerator);
-
 var _promise = require('babel-runtime/core-js/promise');
 
 var _promise2 = _interopRequireDefault(_promise);
 
-var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
+var _regenerator = require('babel-runtime/regenerator');
 
-var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+var _regenerator2 = _interopRequireDefault(_regenerator);
 
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
-var _assign = require('babel-runtime/core-js/object/assign');
+// const initialState = {
+//   test: true,
+// };
 
-var _assign2 = _interopRequireDefault(_assign);
+// function getUserSettingsReducer(prefix) {
+//   return (state, action) => {
+//     if (typeof state === 'undefined') return Object.assign({}, initialState);
+//     if (!action) return state;
+//     switch (action.type) {
+//       default:
+//         return state;
+//     }
+//   };
+// }
 
-var loadInfo = function () {
-  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
-    var _this = this;
+/**
+ * @function
+ * @param {String} dataType
+ * @param {function} loadFunction - async loader function returning a promise
+ * @return {Promise}
+ * @description Generic data loading logic with events
+ */
 
-    var _map, _map2, accountInfo, extensionInfo, dialingPlans, phoneNumbers, forwardingNumbers, blockedNumbers;
-
+var loadData = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(dataType, loadFunction) {
+    var payload;
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _context.prev = 0;
-            _context.next = 3;
-            return _promise2.default.all([this[symbols.api].account().loadAccount(), this[symbols.api].extension().loadExtensionInfo(), _utils.fetchList.call(this, function (options) {
-              return _this[symbols.api].account().listDialingPlans(options);
-            }), _utils.fetchList.call(this, function (options) {
-              return _this[symbols.api].extension().listExtensionPhoneNumbers(options);
-            }), _utils.fetchList.call(this, function (options) {
-              return _this[symbols.api].forwardingNumbers().listExtensionForwardingNumbers(options);
-            }), _utils.fetchList.call(this, function (options) {
-              return _this[symbols.api].blockedNumbers().listBlockedNumbers(options);
-            })]);
+            this.store.dispatch({
+              type: this.actions['load' + dataType]
+            });
+            this.emit(_userEvents.userEvents['load' + dataType]);
+            _context.prev = 2;
+            _context.next = 5;
+            return loadFunction.call(this);
 
-          case 3:
-            _context.t0 = function (data) {
-              return (0, _utils.extractData)(data);
-            };
-
-            _map = _context.sent.map(_context.t0);
-            _map2 = (0, _slicedToArray3.default)(_map, 6);
-            accountInfo = _map2[0];
-            extensionInfo = _map2[1];
-            dialingPlans = _map2[2];
-            phoneNumbers = _map2[3];
-            forwardingNumbers = _map2[4];
-            blockedNumbers = _map2[5];
-
+          case 5:
+            payload = _context.sent;
 
             this.store.dispatch({
-              type: this.actions.loadUserInfo,
-              payload: {
-                accountInfo: accountInfo,
-                extensionInfo: extensionInfo,
-                dialingPlans: dialingPlans,
-                phoneNumbers: phoneNumbers,
-                forwardingNumbers: forwardingNumbers,
-                blockedNumbers: blockedNumbers
-              }
+              type: this.actions['load' + dataType + 'Success'],
+              payload: payload
             });
-            this[symbols.emitter].emit(_userEvents2.default.userInfoLoaded);
-            _context.next = 20;
+            _utils.emit.call(this, _userEvents.userEventTypes.userInfoChanged, _userEvents.userEvents['load' + dataType + 'Success']);
+            _context.next = 15;
             break;
 
-          case 16:
-            _context.prev = 16;
-            _context.t1 = _context['catch'](0);
+          case 10:
+            _context.prev = 10;
+            _context.t0 = _context['catch'](2);
 
-            // TODO send error out
-            console.log(_context.t1);
-            this[symbols.auth].logout();
+            this.store.dispatch({
+              type: this.actions['load' + dataType + 'Failed']
+            });
+            this.emit(_userEvents.userEvents['load' + dataType + 'Failed']);
+            throw _context.t0;
 
-          case 20:
+          case 15:
           case 'end':
             return _context.stop();
         }
       }
-    }, _callee, this, [[0, 16]]);
+    }, _callee, this, [[2, 10]]);
+  }));
+  return function loadData(_x, _x2) {
+    return ref.apply(this, arguments);
+  };
+}();
+
+/**
+ * @function
+ * @return {Promise<Object>}
+ * @description Fetch account info and extract the data
+ */
+
+
+var extractAccountInfo = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2() {
+    return _regenerator2.default.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.next = 2;
+            return this[symbols.api].account().loadAccount();
+
+          case 2:
+            _context2.t0 = _context2.sent;
+            return _context2.abrupt('return', (0, _utils.extractData)(_context2.t0));
+
+          case 4:
+          case 'end':
+            return _context2.stop();
+        }
+      }
+    }, _callee2, this);
+  }));
+  return function extractAccountInfo() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var loadAccountInfo = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3() {
+    return _regenerator2.default.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            _context3.next = 2;
+            return loadData.call(this, 'AccountInfo', extractAccountInfo);
+
+          case 2:
+            return _context3.abrupt('return', _context3.sent);
+
+          case 3:
+          case 'end':
+            return _context3.stop();
+        }
+      }
+    }, _callee3, this);
+  }));
+  return function loadAccountInfo() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var extractExtensionInfo = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4() {
+    return _regenerator2.default.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            _context4.next = 2;
+            return this[symbols.api].extension().loadExtensionInfo();
+
+          case 2:
+            _context4.t0 = _context4.sent;
+            return _context4.abrupt('return', (0, _utils.extractData)(_context4.t0));
+
+          case 4:
+          case 'end':
+            return _context4.stop();
+        }
+      }
+    }, _callee4, this);
+  }));
+  return function extractExtensionInfo() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var loadExtensionInfo = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee5() {
+    return _regenerator2.default.wrap(function _callee5$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
+            _context5.next = 2;
+            return loadData.call(this, 'ExtensionInfo', extractExtensionInfo);
+
+          case 2:
+            return _context5.abrupt('return', _context5.sent);
+
+          case 3:
+          case 'end':
+            return _context5.stop();
+        }
+      }
+    }, _callee5, this);
+  }));
+  return function loadExtensionInfo() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var extractDialingPlans = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee6() {
+    var _this = this;
+
+    return _regenerator2.default.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
+            _context6.next = 2;
+            return _utils.fetchList.call(this, function (options) {
+              return _this[symbols.api].account().listDialingPlans(options);
+            });
+
+          case 2:
+            _context6.t0 = _context6.sent;
+            return _context6.abrupt('return', (0, _utils.extractData)(_context6.t0));
+
+          case 4:
+          case 'end':
+            return _context6.stop();
+        }
+      }
+    }, _callee6, this);
+  }));
+  return function extractDialingPlans() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var loadDialingPlans = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee7() {
+    return _regenerator2.default.wrap(function _callee7$(_context7) {
+      while (1) {
+        switch (_context7.prev = _context7.next) {
+          case 0:
+            _context7.next = 2;
+            return loadData.call(this, 'DialingPlans', extractDialingPlans);
+
+          case 2:
+            return _context7.abrupt('return', _context7.sent);
+
+          case 3:
+          case 'end':
+            return _context7.stop();
+        }
+      }
+    }, _callee7, this);
+  }));
+  return function loadDialingPlans() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var extractPhoneNumbers = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee8() {
+    var _this2 = this;
+
+    return _regenerator2.default.wrap(function _callee8$(_context8) {
+      while (1) {
+        switch (_context8.prev = _context8.next) {
+          case 0:
+            _context8.next = 2;
+            return _utils.fetchList.call(this, function (options) {
+              return _this2[symbols.api].extension().listExtensionPhoneNumbers(options);
+            });
+
+          case 2:
+            _context8.t0 = _context8.sent;
+            return _context8.abrupt('return', (0, _utils.extractData)(_context8.t0));
+
+          case 4:
+          case 'end':
+            return _context8.stop();
+        }
+      }
+    }, _callee8, this);
+  }));
+  return function extractPhoneNumbers() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var loadPhoneNumbers = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee9() {
+    return _regenerator2.default.wrap(function _callee9$(_context9) {
+      while (1) {
+        switch (_context9.prev = _context9.next) {
+          case 0:
+            _context9.next = 2;
+            return loadData.call(this, 'PhoneNumbers', extractPhoneNumbers);
+
+          case 2:
+            return _context9.abrupt('return', _context9.sent);
+
+          case 3:
+          case 'end':
+            return _context9.stop();
+        }
+      }
+    }, _callee9, this);
+  }));
+  return function loadPhoneNumbers() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var extractForwardingNumbers = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee10() {
+    var _this3 = this;
+
+    return _regenerator2.default.wrap(function _callee10$(_context10) {
+      while (1) {
+        switch (_context10.prev = _context10.next) {
+          case 0:
+            _context10.next = 2;
+            return _utils.fetchList.call(this, function (options) {
+              return _this3[symbols.api].forwardingNumbers().listExtensionForwardingNumbers(options);
+            });
+
+          case 2:
+            _context10.t0 = _context10.sent;
+            return _context10.abrupt('return', (0, _utils.extractData)(_context10.t0));
+
+          case 4:
+          case 'end':
+            return _context10.stop();
+        }
+      }
+    }, _callee10, this);
+  }));
+  return function extractForwardingNumbers() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var loadForwardingNumbers = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee11() {
+    return _regenerator2.default.wrap(function _callee11$(_context11) {
+      while (1) {
+        switch (_context11.prev = _context11.next) {
+          case 0:
+            _context11.next = 2;
+            return loadData.call(this, 'ForwardingNumbers', extractForwardingNumbers);
+
+          case 2:
+            return _context11.abrupt('return', _context11.sent);
+
+          case 3:
+          case 'end':
+            return _context11.stop();
+        }
+      }
+    }, _callee11, this);
+  }));
+  return function loadForwardingNumbers() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var extractBlockedNumbers = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee12() {
+    var _this4 = this;
+
+    return _regenerator2.default.wrap(function _callee12$(_context12) {
+      while (1) {
+        switch (_context12.prev = _context12.next) {
+          case 0:
+            _context12.next = 2;
+            return _utils.fetchList.call(this, function (options) {
+              return _this4[symbols.api].blockedNumbers().listBlockedNumbers(options);
+            });
+
+          case 2:
+            _context12.t0 = _context12.sent;
+            return _context12.abrupt('return', (0, _utils.extractData)(_context12.t0));
+
+          case 4:
+          case 'end':
+            return _context12.stop();
+        }
+      }
+    }, _callee12, this);
+  }));
+  return function extractBlockedNumbers() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+var loadBlockedNumbers = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee13() {
+    return _regenerator2.default.wrap(function _callee13$(_context13) {
+      while (1) {
+        switch (_context13.prev = _context13.next) {
+          case 0:
+            _context13.next = 2;
+            return loadData.call(this, 'BlockedNumbers', extractBlockedNumbers);
+
+          case 2:
+            return _context13.abrupt('return', _context13.sent);
+
+          case 3:
+          case 'end':
+            return _context13.stop();
+        }
+      }
+    }, _callee13, this);
+  }));
+  return function loadBlockedNumbers() {
+    return ref.apply(this, arguments);
+  };
+}();
+
+/**
+ * @function
+ * @return {Promise}
+ */
+
+
+var loadInfo = function () {
+  var ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee14() {
+    return _regenerator2.default.wrap(function _callee14$(_context14) {
+      while (1) {
+        switch (_context14.prev = _context14.next) {
+          case 0:
+            _context14.prev = 0;
+            _context14.next = 3;
+            return _promise2.default.all([loadAccountInfo.call(this), loadExtensionInfo.call(this), loadDialingPlans.call(this), loadPhoneNumbers.call(this), loadForwardingNumbers.call(this), loadBlockedNumbers.call(this)]);
+
+          case 3:
+            _context14.next = 8;
+            break;
+
+          case 5:
+            _context14.prev = 5;
+            _context14.t0 = _context14['catch'](0);
+
+            // TODO send error out
+            console.log(_context14.t0);
+
+          case 8:
+          case 'end':
+            return _context14.stop();
+        }
+      }
+    }, _callee14, this, [[0, 5]]);
   }));
   return function loadInfo() {
     return ref.apply(this, arguments);
   };
 }();
+
+/**
+ * @class User
+ * @extends RcModule
+ * @default
+ * @export
+ */
+
 
 var _rcModule = require('../../lib/rc-module');
 
@@ -130,10 +485,6 @@ var _symbolMap2 = _interopRequireDefault(_symbolMap);
 
 var _utils = require('../../lib/utils');
 
-var _loginStatus = require('../../enums/login-status');
-
-var _loginStatus2 = _interopRequireDefault(_loginStatus);
-
 var _userActions = require('./user-actions');
 
 var _userActions2 = _interopRequireDefault(_userActions);
@@ -142,124 +493,97 @@ var _userReducer = require('./user-reducer');
 
 var _userReducer2 = _interopRequireDefault(_userReducer);
 
-var _componentEmitter = require('component-emitter');
-
-var _componentEmitter2 = _interopRequireDefault(_componentEmitter);
-
-var _userEvents = require('../../enums/user-events');
-
-var _userEvents2 = _interopRequireDefault(_userEvents);
+var _userEvents = require('./user-events');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var symbols = new _symbolMap2.default(['api', 'auth', 'platform', 'emitter', 'settings']);
-
-var initialState = {
-  test: true
-};
-
-function getUserSettingsReducer(prefix) {
-  return function (state, action) {
-    if (typeof state === 'undefined') return (0, _assign2.default)({}, initialState);
-    if (!action) return state;
-    switch (action.type) {
-      default:
-        return state;
-    }
-  };
-}
-
+var symbols = new _symbolMap2.default(['api', 'platform', 'settings']);
 var User = function (_RcModule) {
   (0, _inherits3.default)(User, _RcModule);
 
+  /**
+   * @function
+   * @param {Object} options
+   */
+
   function User(options) {
-    var _this3 = this;
+    var _this6 = this;
 
     (0, _classCallCheck3.default)(this, User);
 
-    var _this2 = (0, _possibleConstructorReturn3.default)(this, (0, _getPrototypeOf2.default)(User).call(this, (0, _extends3.default)({}, options, {
+    var _this5 = (0, _possibleConstructorReturn3.default)(this, (0, _getPrototypeOf2.default)(User).call(this, (0, _extends3.default)({}, options, {
       actions: _userActions2.default
     })));
 
     var api = options.api;
-    var auth = options.auth;
     var platform = options.platform;
     var settings = options.settings;
 
-    _this2[symbols.api] = api;
-    _this2[symbols.auth] = auth;
-    _this2[symbols.platform] = platform;
-    _this2[symbols.emitter] = new _componentEmitter2.default();
-    _this2[symbols.settings] = settings;
+    _this5[symbols.api] = api;
+    _this5[symbols.platform] = platform;
+    _this5[symbols.settings] = settings;
 
-    settings.registerReducer('user', getUserSettingsReducer());
+    // settings.registerReducer('user', getUserSettingsReducer());
 
     // load info on login
     platform.on(platform.events.loginSuccess, function () {
-      loadInfo.call(_this2);
+      loadInfo.call(_this5);
     });
     // unload info on logout
     platform.on(platform.events.logoutSuccess, function () {
-      _this2.store.dispatch({
-        type: _this2.actions.clearUserInfo
+      _this5.store.dispatch({
+        type: _this5.actions.clearUserInfo
       });
-      _this2[symbols.emitter].emit(_userEvents2.default.userInfoCleared);
+      // this.emit(userEvents.userInfoCleared);
     });
+
     // load info if already logged in
-    (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2() {
-      return _regenerator2.default.wrap(function _callee2$(_context2) {
+    (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee15() {
+      return _regenerator2.default.wrap(function _callee15$(_context15) {
         while (1) {
-          switch (_context2.prev = _context2.next) {
+          switch (_context15.prev = _context15.next) {
             case 0:
-              _context2.next = 2;
-              return auth.getStatus();
+              _context15.next = 2;
+              return platform.loggedIn();
 
             case 2:
-              _context2.t0 = _context2.sent;
-              _context2.t1 = _loginStatus2.default.userAccess;
-
-              if (!(_context2.t0 === _context2.t1)) {
-                _context2.next = 7;
+              if (!_context15.sent) {
+                _context15.next = 5;
                 break;
               }
 
-              _context2.next = 7;
-              return loadInfo.call(_this2);
+              _context15.next = 5;
+              return loadInfo.call(_this5);
 
-            case 7:
+            case 5:
             case 'end':
-              return _context2.stop();
+              return _context15.stop();
           }
         }
-      }, _callee2, _this3);
+      }, _callee15, _this6);
     }))();
 
     /**
      * TODO:
      *   1. Dialing Plan Checking
      */
-    return _this2;
+    return _this5;
   }
 
   (0, _createClass3.default)(User, [{
-    key: 'on',
-    value: function on(event, handler) {
-      var _this4 = this;
-
-      this[symbols.emitter].on(event, handler);
-      return function () {
-        _this4.off(event, handler);
-      };
-    }
-  }, {
-    key: 'off',
-    value: function off(event, handler) {
-      this[symbols.emitter].off(event, handler);
-    }
-  }, {
     key: 'reducer',
     get: function get() {
       return (0, _userReducer2.default)(this.prefix);
+    }
+  }, {
+    key: 'events',
+    get: function get() {
+      return _userEvents.userEvents;
+    }
+  }, {
+    key: 'eventTypes',
+    get: function get() {
+      return _userEvents.userEventTypes;
     }
   }, {
     key: 'directNumbers',

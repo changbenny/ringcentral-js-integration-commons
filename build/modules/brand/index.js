@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends2 = require('babel-runtime/helpers/extends');
+
+var _extends3 = _interopRequireDefault(_extends2);
+
 var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
 
 var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
@@ -47,23 +51,15 @@ var symbols = new _symbolMap2.default(['initialState']);
 var Brand = function (_RcModule) {
   (0, _inherits3.default)(Brand, _RcModule);
 
-  function Brand(_ref) {
-    var registerStoreHandler = _ref.registerStoreHandler;
-    var _ref$stateMapper = _ref.stateMapper;
-    var stateMapper = _ref$stateMapper === undefined ? function (state) {
-      return state.brand;
-    } : _ref$stateMapper;
-    var prefix = _ref.prefix;
-    var id = _ref.id;
-    var name = _ref.name;
+  function Brand(options) {
     (0, _classCallCheck3.default)(this, Brand);
 
-    var _this = (0, _possibleConstructorReturn3.default)(this, (0, _getPrototypeOf2.default)(Brand).call(this, {
-      registerStoreHandler: registerStoreHandler,
-      stateMapper: stateMapper,
-      prefix: prefix,
+    var _this = (0, _possibleConstructorReturn3.default)(this, (0, _getPrototypeOf2.default)(Brand).call(this, (0, _extends3.default)({}, options, {
       actions: _brandActions2.default
-    }));
+    })));
+
+    var id = options.id;
+    var name = options.name;
 
     _this[symbols.initialState] = {
       id: id,

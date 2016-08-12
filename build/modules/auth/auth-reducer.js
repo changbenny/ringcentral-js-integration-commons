@@ -8,60 +8,64 @@ var _assign = require('babel-runtime/core-js/object/assign');
 
 var _assign2 = _interopRequireDefault(_assign);
 
-exports.default = getReducer;
+exports.default = getAuthReducer;
+
+var _reduxHelper = require('../../lib/redux-helper');
 
 var _authActions = require('./auth-actions');
 
 var _authActions2 = _interopRequireDefault(_authActions);
 
-var _reduxHelper = require('../../lib/redux-helper');
-
-var _loginStatus = require('../../enums/login-status');
+var _loginStatus = require('./login-status');
 
 var _loginStatus2 = _interopRequireDefault(_loginStatus);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function getReducer(initialState, prefix) {
+var initialState = {
+  status: _loginStatus2.default.pending,
+  authError: null
+};
+
+function getAuthReducer(prefix) {
   var actions = (0, _reduxHelper.prefixActions)(_authActions2.default, prefix);
   return function (state, action) {
     if (typeof state === 'undefined') return (0, _assign2.default)({}, initialState);
-
     if (!action) return state;
-
     switch (action.type) {
 
-      case actions.initAuth:
+      case actions.init:
         return (0, _assign2.default)({}, state, { status: action.status });
 
       case actions.login:
-        return (0, _assign2.default)({}, state, {
-          status: _loginStatus2.default.userAccessPending,
-          error: null
-        });
+        return {
+          status: _loginStatus2.default.loggingIn,
+          authError: null
+        };
 
       case actions.loginSuccess:
-        return (0, _assign2.default)({}, state, {
-          status: _loginStatus2.default.userAccess,
-          error: null
-        });
+        return {
+          status: _loginStatus2.default.loggedIn,
+          authError: null
+        };
 
       case actions.logoutSuccess:
-        return (0, _assign2.default)({}, state, {
+        return {
           status: _loginStatus2.default.notLoggedIn,
-          error: null
-        });
+          authError: null
+        };
 
       case actions.loginError:
-        return (0, _assign2.default)({}, state, {
+        return {
           state: _loginStatus2.default.notLoggedIn,
-          error: action.error
-        });
+          authError: action.error
+        };
 
       case actions.logoutError:
-        return (0, _assign2.default)({}, state, {
-          error: action.error
-        });
+        return {
+          status: _loginStatus2.default.loggedIn,
+          authError: action.error
+        };
 
       default:
         return state;

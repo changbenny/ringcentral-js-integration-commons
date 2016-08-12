@@ -44,6 +44,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var symbols = new _symbolMap2.default(['reducer']);
 
+function getSettingsReducer(prefix) {
+  return function (state, action) {
+    if (typeof state === 'undefined') return {};
+
+    return state;
+  };
+}
+
 var Settings = function (_RcModule) {
   (0, _inherits3.default)(Settings, _RcModule);
 
@@ -52,7 +60,9 @@ var Settings = function (_RcModule) {
 
     var _this = (0, _possibleConstructorReturn3.default)(this, (0, _getPrototypeOf2.default)(Settings).call(this, (0, _extends3.default)({}, options)));
 
-    _this[symbols.reducer] = {};
+    _this[symbols.reducer] = {
+      base: getSettingsReducer(_this.prefix)
+    };
     return _this;
   }
 
