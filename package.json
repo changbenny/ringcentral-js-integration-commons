@@ -2,7 +2,7 @@
   "name": "ringcentral-js-integration-commons",
   "version": "0.1.0",
   "description": "",
-  "main": "dist/ringcentral-js-integration-commons.js",
+  "main": "build/rc-phone.js",
   "scripts": {
     "test": "node ./node_modules/babel-cli/bin/babel-node.js ./node_modules/gulp/bin/gulp.js test",
     "test-browser": "node ./node_modules/babel-cli/bin/babel-node.js ./node_modules/gulp/bin/gulp.js test-browser",
