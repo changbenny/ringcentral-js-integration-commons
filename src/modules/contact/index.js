@@ -4,7 +4,7 @@ import Enum from '../../lib/enum';
 import getReducer from './contact-reducer';
 import actions from './contact-actions';
 
-import { fetchList } from '../../lib/utils';
+import { fetchList, extractData } from '../../lib/utils';
 
 const symbols = new SymbolMap([
   'api',
@@ -16,7 +16,7 @@ const symbols = new SymbolMap([
  * @class
  * @description Contact module
  */
-export default class Auth extends RcModule {
+export default class Contact extends RcModule {
   /**
    * @function
    */
@@ -46,7 +46,9 @@ export default class Auth extends RcModule {
   }
 
   async loadCompanyContact() {
-    const info = await this[symbols.api].extension().listExtensions();
+    const contacts = extractData(await this::fetchList(options => (
+      this[symbols.api].account().extension().list(options)
+    )));
   }
 
   get reducer() {

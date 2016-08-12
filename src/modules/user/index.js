@@ -127,7 +127,7 @@ async function loadInfo() {
     // this.emit(userEvents.userInfoLoaded);
   } catch (e) {
     // TODO send error out
-    console.log(e);
+    console.error(e);
   }
 }
 
