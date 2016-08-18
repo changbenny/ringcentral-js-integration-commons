@@ -111,6 +111,7 @@ export default class RcPhone extends RcModule {
       subscription: this.subscription.reducer,
       user: this.user.reducer,
       webphone: this.webphone.reducer,
+      contact: this.contact.reducer,
       settings: this.settings.reducer,
     });
     if (resolver) {

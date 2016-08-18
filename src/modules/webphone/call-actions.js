@@ -17,4 +17,4 @@ export default new ActionMap([
   'transfer',
   'forward',
   'dtmf',
-]);
+], 'webphone');

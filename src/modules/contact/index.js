@@ -1,10 +1,12 @@
 import RcModule from '../../lib/rc-module';
-import SymbolMap from '../../lib/symbol-map';
-import Enum from '../../lib/enum';
-import getReducer from './contact-reducer';
-import actions from './contact-actions';
+import addModule from '../../lib/add-module';
 
-import { fetchList, extractData } from '../../lib/utils';
+import SymbolMap from 'data-types/symbol-map';
+import KeyValueMap from 'data-types/key-value-map';
+import { combineReducers } from 'redux';
+
+import CompanyContact from './company-contact';
+import AddressBook from './address-book';
 
 const symbols = new SymbolMap([
   'api',
@@ -23,35 +25,43 @@ export default class Contact extends RcModule {
   constructor(options) {
     super({
       ...options,
-      actions,
     });
     const {
       api,
       platform,
       settings,
+      promiseForStore,
+      prefix,
     } = options;
+
     this[symbols.api] = api;
     this[symbols.platform] = platform;
     this[symbols.settings] = settings;
 
-    platform.on(platform.events.loginSuccess, () => {
-      this.loadCompanyContact();
-    });
+    this::addModule('companyContact', new CompanyContact({
+      promiseForStore,
+      getState: () => this.state.companyContact,
+      prefix,
+      api,
+      platform,
+      settings,
+    }));
 
-    (async () => {
-      if (await platform.loggedIn()) {
-        await this.loadCompanyContact();
-      }
-    })();
-  }
-
-  async loadCompanyContact() {
-    const contacts = extractData(await this::fetchList(options => (
-      this[symbols.api].account().extension().list(options)
-    )));
+    this::addModule('addressBook', new AddressBook({
+      promiseForStore,
+      getState: () => this.state.addressBook,
+      prefix,
+      api,
+      platform,
+      settings,
+    }));
   }
 
   get reducer() {
-    return getReducer(this.prefix);
+    console.log('reducer');
+    return combineReducers({
+      companyContact: this.companyContact.reducer,
+      addressBook: this.addressBook.reducer,
+    });
   }
 }

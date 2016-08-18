@@ -1,5 +1,8 @@
 # ringcentral-js-integration-commons
 
+[![Build Status](https://travis-ci.org/ringcentral/ringcentral-js-integration-commons.svg?branch=master)](https://travis-ci.org/ringcentral/ringcentral-js-integration-commons)
+[![Coverage Status](https://coveralls.io/repos/github/ringcentral/ringcentral-js-integration-commons/badge.svg?branch=master)](https://coveralls.io/github/ringcentral/ringcentral-js-integration-commons?branch=master)
+
 Integration common javascript core library.
 In this project we aim to:
 
@@ -13,7 +16,7 @@ In this project we aim to:
 - [x] Coding style guide document
 - [x] Eslint check setup
 - [x] Webpack setup for distributing code
-- [ ] CI setup
+- [x] CI setup
 
 #To start
 
@@ -99,10 +102,10 @@ npm run test
 
 Run tests in specific test folder or file:
 ```bash
-npm run test -- --folder folder1 --folder folder2,folder3
-npm run test -- --folder test/unit
+npm run quick-test -- --folder folder1 --folder folder2,folder3
+npm run quick-test -- --folder test/lib
 
-npm run test -- --file test/unit/enum.js
+npm run quick-test -- --file test/lib/add-module.test.js
 ```
 Both multiple --folder/--file declaration, or comma-delimmated list will work too.
 
